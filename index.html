@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jan Lönnqvist · Kraft Heinz · The Kitchen</title>
+<style>
+@font-face{font-family:'Diatype Variable';src:url('fonts/DiatypeVariable.woff2') format('woff2');font-weight:200 1000;font-display:swap}
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+    --bg:#1a1411;
+    --warm:#2a2018;
+    --card:#221c16;
+    --cream:#f5efe6;
+    --ketchup:#c4122f;
+    --mustard:#d4a017;
+    --herb:#6b8f5e;
+    --cream-60:rgba(245,239,230,.6);
+    --cream-30:rgba(245,239,230,.3);
+    --cream-15:rgba(245,239,230,.12);
+    --cream-08:rgba(245,239,230,.06);
+}
+html{scroll-behavior:smooth;overflow-x:hidden}
+html::-webkit-scrollbar{width:0}
+body{font-family:'Diatype Variable',-apple-system,Helvetica Neue,sans-serif;background:var(--bg);color:var(--cream);-webkit-font-smoothing:antialiased;cursor:none;overflow-x:hidden}
+::selection{background:var(--ketchup);color:#fff}
+
+.cur-d{width:6px;height:6px;border-radius:50%;background:var(--mustard);position:fixed;transform:translate(-50%,-50%);z-index:10000;pointer-events:none}
+.cur-r{width:34px;height:34px;border-radius:50%;border:1px solid rgba(212,160,23,.15);position:fixed;transform:translate(-50%,-50%);z-index:9999;pointer-events:none;transition:all .4s cubic-bezier(.16,1,.3,1)}
+.cur-r.h{width:60px;height:60px;border-color:var(--mustard)}
+
+#loader{position:fixed;inset:0;background:var(--bg);z-index:300;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;transition:opacity .5s ease .2s}
+#loader.done{opacity:0;pointer-events:none}
+#loader .l-text{font-size:.45rem;letter-spacing:.5em;text-transform:uppercase;color:var(--cream-30);font-weight:600}
+#loader .l-bar{width:60px;height:1px;background:var(--cream-08);overflow:hidden}
+#loader .l-fill{height:100%;width:0;background:var(--ketchup);animation:fill 1.3s ease .3s forwards}
+@keyframes fill{to{width:100%}}
+
+/* === HERO: FULL BLEED FOOD IMAGE === */
+.hero{height:100vh;position:relative;overflow:hidden;display:flex;align-items:flex-end}
+.hero-img{position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1800&q=80') center/cover no-repeat}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(to top,var(--bg) 0%,rgba(26,20,17,.7) 40%,rgba(26,20,17,.3) 100%)}
+.hero-content{position:relative;z-index:2;padding:0 56px 8vh;max-width:800px}
+.hero-label{font-size:.38rem;letter-spacing:.6em;text-transform:uppercase;color:var(--mustard);font-weight:600;margin-bottom:16px;opacity:0;transform:translateY(16px);transition:all .8s ease .6s}
+.hero-label.vis{opacity:1;transform:none}
+.hero-title{font-size:clamp(3.5rem,10vw,8rem);font-weight:900;line-height:.85;letter-spacing:-.04em;opacity:0;transform:translateY(30px);transition:all 1s cubic-bezier(.16,1,.3,1) .3s}
+.hero-title.vis{opacity:1;transform:none}
+.hero-sub{font-size:clamp(.8rem,1.2vw,1rem);font-weight:300;color:var(--cream-60);margin-top:16px;line-height:1.6;max-width:520px;opacity:0;transform:translateY(16px);transition:all .8s ease 1s}
+.hero-sub.vis{opacity:1;transform:none}
+
+/* === RECIPE STRUCTURE === */
+.recipe-nav{display:flex;gap:0;border-bottom:1px solid var(--cream-08);position:sticky;top:0;z-index:100;background:rgba(26,20,17,.95);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.recipe-nav a{flex:1;text-align:center;padding:16px;font-size:.38rem;letter-spacing:.35em;text-transform:uppercase;color:var(--cream-30);text-decoration:none;font-weight:600;transition:all .3s;cursor:none;border-right:1px solid var(--cream-08)}
+.recipe-nav a:last-child{border-right:none}
+.recipe-nav a:hover{color:var(--mustard);background:var(--cream-08)}
+
+/* === INGREDIENTS (SKILLS) === */
+.ingredients{padding:12vh 56px;display:grid;grid-template-columns:280px 1fr;gap:60px;border-bottom:1px solid var(--cream-08)}
+.ing-label{position:sticky;top:100px;align-self:start}
+.ing-label h2{font-size:.38rem;letter-spacing:.6em;text-transform:uppercase;color:var(--mustard);font-weight:600;margin-bottom:12px}
+.ing-label p{font-size:clamp(2rem,3.5vw,2.8rem);font-weight:900;line-height:.9;letter-spacing:-.04em}
+.ing-label p em{font-weight:200;font-style:normal;color:var(--cream-60)}
+.ing-list{columns:2;column-gap:40px}
+.ing-item{padding:14px 0;border-bottom:1px solid var(--cream-08);break-inside:avoid;display:flex;justify-content:space-between;align-items:baseline}
+.ing-item .name{font-size:clamp(.72rem,.85vw,.8rem);font-weight:400;color:var(--cream-60)}
+.ing-item .amount{font-size:.36rem;letter-spacing:.2em;text-transform:uppercase;color:var(--mustard);font-weight:600}
+
+/* === METHOD (EXPERIENCE) === */
+.method{padding:12vh 56px;border-bottom:1px solid var(--cream-08)}
+.method-header{display:grid;grid-template-columns:280px 1fr;gap:60px;margin-bottom:60px}
+.method-label h2{font-size:.38rem;letter-spacing:.6em;text-transform:uppercase;color:var(--ketchup);font-weight:600;margin-bottom:12px}
+.method-label p{font-size:clamp(2rem,3.5vw,2.8rem);font-weight:900;line-height:.9;letter-spacing:-.04em}
+.method-label p em{font-weight:200;font-style:normal;color:var(--cream-60)}
+
+.step{display:grid;grid-template-columns:80px 1fr 300px;gap:32px;padding:40px 0;border-top:1px solid var(--cream-08);align-items:start}
+.step-num{font-size:clamp(2.5rem,4vw,3.5rem);font-weight:900;color:var(--cream-08);line-height:1}
+.step-content h3{font-size:clamp(.9rem,1.2vw,1.05rem);font-weight:800;margin-bottom:6px}
+.step-content .company{font-size:.36rem;letter-spacing:.3em;text-transform:uppercase;color:var(--ketchup);font-weight:600;margin-bottom:10px}
+.step-content p{font-size:clamp(.7rem,.82vw,.78rem);line-height:1.8;color:var(--cream-60);font-weight:350}
+.step-content p strong{color:var(--cream);font-weight:600}
+.step-img{height:200px;border-radius:6px;overflow:hidden}
+.step-img img{width:100%;height:100%;object-fit:cover;filter:saturate(.85);transition:transform .6s cubic-bezier(.16,1,.3,1)}
+.step:hover .step-img img{transform:scale(1.05)}
+
+/* === SERVING SUGGESTION (WHY) === */
+.serving{padding:12vh 56px;background:var(--warm);position:relative;overflow:hidden}
+.serving::before{content:'57';position:absolute;top:50%;right:5%;transform:translateY(-50%);font-size:clamp(20rem,50vw,40rem);font-weight:900;line-height:.7;color:rgba(245,239,230,.012);pointer-events:none}
+.serving-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;max-width:1100px}
+.serving-left h2{font-size:.38rem;letter-spacing:.6em;text-transform:uppercase;color:var(--ketchup);font-weight:600;margin-bottom:16px}
+.serving-left h3{font-size:clamp(2rem,3.5vw,2.8rem);font-weight:900;line-height:.9;letter-spacing:-.04em;margin-bottom:24px}
+.serving-left h3 em{font-weight:200;font-style:normal;color:var(--cream-60)}
+.serving-left p{font-size:clamp(.74rem,.88vw,.82rem);line-height:1.85;color:var(--cream-60);font-weight:350}
+.serving-left p strong{color:var(--cream);font-weight:600}
+.serving-left p+p{margin-top:14px}
+.serving-right{display:flex;flex-direction:column;justify-content:center;gap:20px}
+.s-item{padding:16px 20px;border-left:2px solid var(--cream-08);transition:border-color .4s}
+.s-item:hover{border-color:var(--ketchup)}
+.s-item h4{font-size:clamp(.85rem,1.1vw,1rem);font-weight:700;margin-bottom:4px}
+.s-item p{font-size:clamp(.66rem,.78vw,.74rem);color:var(--cream-60);line-height:1.7;font-weight:350}
+
+/* === FOOD IMAGE BREAK === */
+.food-break{height:50vh;position:relative;overflow:hidden}
+.food-break img{width:100%;height:100%;object-fit:cover}
+.food-break-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,var(--bg) 0%,transparent 30%,transparent 70%,var(--bg) 100%)}
+
+/* === CTA === */
+.cta{padding:16vh 56px;text-align:center}
+.cta h2{font-size:clamp(4rem,12vw,10rem);font-weight:900;line-height:.8;letter-spacing:-.05em}
+.cta h2 em{font-weight:200;color:var(--cream-60);font-style:normal}
+.cta .info{margin-top:24px;font-size:.55rem;color:var(--cream-30);line-height:2.2;letter-spacing:.05em}
+.cta-links{margin-top:20px;display:flex;gap:10px;justify-content:center}
+.cta-links a{font-size:.42rem;text-decoration:none;cursor:none;padding:13px 30px;letter-spacing:.2em;text-transform:uppercase;font-weight:600;transition:all .4s}
+.cta-links a.primary{background:var(--ketchup);color:#fff;border:1px solid var(--ketchup)}
+.cta-links a.primary:hover{background:#a8102a}
+.cta-links a.secondary{color:var(--cream);border:1px solid var(--cream-15)}
+.cta-links a.secondary:hover{border-color:var(--ketchup);color:var(--ketchup)}
+
+footer{padding:20px 56px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--cream-08)}
+footer span{font-size:.36rem;letter-spacing:.25em;text-transform:uppercase;color:var(--cream-30);font-weight:400}
+
+/* SCROLL REVEAL */
+.sr{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s cubic-bezier(.16,1,.3,1)}
+.sr.vis{opacity:1;transform:none}
+.sr-d1{transition-delay:.1s}
+.sr-d2{transition-delay:.2s}
+.sr-d3{transition-delay:.3s}
+
+@media(max-width:900px){
+    body{cursor:auto}
+    .cur-d,.cur-r{display:none}
+    .hero-content{padding:0 24px 6vh}
+    .ingredients{grid-template-columns:1fr;padding:8vh 24px;gap:30px}
+    .ing-label{position:static}
+    .ing-list{columns:1}
+    .method{padding:8vh 24px}
+    .method-header{grid-template-columns:1fr}
+    .step{grid-template-columns:50px 1fr;gap:16px}
+    .step-img{display:none}
+    .serving{padding:8vh 24px}
+    .serving-grid{grid-template-columns:1fr;gap:40px}
+    .food-break{height:30vh}
+    .cta{padding:10vh 24px}
+    footer{padding:16px 24px}
+    .recipe-nav a{padding:12px 8px;font-size:.32rem;letter-spacing:.2em}
+}
+</style>
+</head>
+<body>
+
+<div id="loader"><div class="l-text">The Kitchen</div><div class="l-bar"><div class="l-fill"></div></div></div>
+<div class="cur-d" id="cd"></div>
+<div class="cur-r" id="cr"></div>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-img"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+        <div class="hero-label" id="hL">Creative Specialist · The Kitchen · Kraft Heinz</div>
+        <h1 class="hero-title" id="hT">Jan<br>Lönnqvist</h1>
+        <p class="hero-sub" id="hS">12 years of in-house creative for food, FMCG, and consumer brands. From HelloFresh meal kits to Rituals campaigns, I know how to make food brands connect with culture.</p>
+    </div>
+</section>
+
+<!-- NAV -->
+<nav class="recipe-nav" id="nav">
+    <a href="#ingredients">Ingredients</a>
+    <a href="#method">Method</a>
+    <a href="#serving">Serving Suggestion</a>
+    <a href="#connect">Let's Cook</a>
+</nav>
+
+<!-- FOOD BREAK 1 -->
+<div class="food-break">
+    <img src="https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=1800&q=80" alt="Fresh ingredients">
+    <div class="food-break-overlay"></div>
+</div>
+
+<!-- INGREDIENTS -->
+<section class="ingredients" id="ingredients">
+    <div class="ing-label sr">
+        <h2>Ingredients</h2>
+        <p>What I<br><em>bring</em></p>
+    </div>
+    <div class="ing-list">
+        <div class="ing-item sr sr-d1"><span class="name">Adobe Creative Suite</span><span class="amount">Expert</span></div>
+        <div class="ing-item sr sr-d1"><span class="name">Photoshop</span><span class="amount">Expert</span></div>
+        <div class="ing-item sr sr-d1"><span class="name">Illustrator</span><span class="amount">Expert</span></div>
+        <div class="ing-item sr sr-d2"><span class="name">After Effects</span><span class="amount">Advanced</span></div>
+        <div class="ing-item sr sr-d2"><span class="name">Figma</span><span class="amount">Expert</span></div>
+        <div class="ing-item sr sr-d2"><span class="name">Food Content Creation</span><span class="amount">HelloFresh</span></div>
+        <div class="ing-item sr sr-d2"><span class="name">Social-First Design</span><span class="amount">TikTok / IG</span></div>
+        <div class="ing-item sr sr-d3"><span class="name">Brand Storytelling</span><span class="amount">12 years</span></div>
+        <div class="ing-item sr sr-d3"><span class="name">Campaign Production</span><span class="amount">High-volume</span></div>
+        <div class="ing-item sr sr-d3"><span class="name">Art Direction</span><span class="amount">Filling Pieces</span></div>
+        <div class="ing-item sr sr-d3"><span class="name">Motion Design</span><span class="amount">Advanced</span></div>
+        <div class="ing-item sr sr-d3"><span class="name">FMCG Experience</span><span class="amount">Rituals / HF</span></div>
+        <div class="ing-item sr sr-d3"><span class="name">Team Leadership</span><span class="amount">3 reports</span></div>
+        <div class="ing-item sr sr-d3"><span class="name">Culture-First Thinking</span><span class="amount">Essential</span></div>
+    </div>
+</section>
+
+<!-- METHOD -->
+<section class="method" id="method">
+    <div class="method-header">
+        <div class="method-label sr">
+            <h2>Method</h2>
+            <p>How I've<br><em>cooked</em></p>
+        </div>
+    </div>
+
+    <div class="step sr">
+        <div class="step-num">01</div>
+        <div class="step-content">
+            <div class="company">HelloFresh · Food · In-House</div>
+            <h3>Led the creative kitchen</h3>
+            <p><strong>In-house creative team at Europe's largest meal kit company.</strong> Led three direct reports producing campaigns across BENELUX and France. Recipe cards, meal photography, homepage takeovers, emailers, social content. Understood the <strong>full food content pipeline</strong> from shoot to delivery. Produced at the speed the food industry demands, week after week, season after season.</p>
+        </div>
+        <div class="step-img"><img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&q=80" alt="Food preparation"></div>
+    </div>
+
+    <div class="step sr">
+        <div class="step-num">02</div>
+        <div class="step-content">
+            <div class="company">Rituals · FMCG · In-House</div>
+            <h3>Consumer brand, record sales</h3>
+            <p><strong>Hammam campaign, highest sales in product history.</strong> Packaging, POS, digital CRM, in-store visuals across 900+ retail locations. Translated a single creative concept into a fully integrated consumer experience. The kind of <strong>cross-channel, culture-aware campaign thinking</strong> The Kitchen needs.</p>
+        </div>
+        <div class="step-img"><img src="https://images.unsplash.com/photo-1547592180-85f173990554?w=600&q=80" alt="Cooking"></div>
+    </div>
+
+    <div class="step sr">
+        <div class="step-num">03</div>
+        <div class="step-content">
+            <div class="company">GLS Group · Global · In-House</div>
+            <h3>40+ countries, one brand</h3>
+            <p><strong>Integrated campaigns across 40+ countries.</strong> Digital, print, CRM, OOH. Managed corporate design standards and stakeholder communication across marketing and expansion teams. Multi-market, multi-touchpoint production at the scale Kraft Heinz operates.</p>
+        </div>
+        <div class="step-img"><img src="https://images.unsplash.com/photo-1466637574441-749b8f19452f?w=600&q=80" alt="Kitchen ingredients"></div>
+    </div>
+
+    <div class="step sr">
+        <div class="step-num">04</div>
+        <div class="step-content">
+            <div class="company">DHL · 360 Advertising</div>
+            <h3>Data meets storytelling</h3>
+            <p>Conceptual campaigns across <strong>12+ markets</strong>: banners, social, emailers, print collateral. <strong>20% of targeted leads in month one.</strong> Data-informed design connecting brand storytelling to measurable business outcomes.</p>
+        </div>
+        <div class="step-img"><img src="https://images.unsplash.com/photo-1490818387583-1baba5e638af?w=600&q=80" alt="Fresh food"></div>
+    </div>
+
+    <div class="step sr">
+        <div class="step-num">05</div>
+        <div class="step-content">
+            <div class="company">IKEA · Retail · In-House</div>
+            <h3>Global consumer brand</h3>
+            <p><strong>In-house at one of the world's most recognised brands.</strong> Campaign design and production for retail and digital channels. Learned how a massive in-house operation maintains brand consistency while adapting to local markets and cultural contexts.</p>
+        </div>
+        <div class="step-img"><img src="https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=600&q=80" alt="Colorful food"></div>
+    </div>
+
+    <div class="step sr">
+        <div class="step-num">06</div>
+        <div class="step-content">
+            <div class="company">Filling Pieces · Fashion · Art Direction</div>
+            <h3>Culture-first creative</h3>
+            <p><strong>Lookbook design and art direction</strong> for a premium fashion label. Creative concepting, photography direction, visual storytelling. The culture-first thinking and craft that makes content cut through on social platforms.</p>
+        </div>
+        <div class="step-img"><img src="https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?w=600&q=80" alt="Plated food"></div>
+    </div>
+</section>
+
+<!-- FOOD BREAK 2 -->
+<div class="food-break">
+    <img src="https://images.unsplash.com/photo-1543353071-873f17a7a088?w=1800&q=80" alt="Food styling">
+    <div class="food-break-overlay"></div>
+</div>
+
+<!-- SERVING SUGGESTION -->
+<section class="serving" id="serving">
+    <div class="serving-grid">
+        <div>
+            <h2 class="sr">Serving Suggestion</h2>
+            <h3 class="sr sr-d1">Food is<br><em>what I know</em></h3>
+            <p class="sr sr-d2">I spent years at <strong>HelloFresh building campaigns around food</strong>: meal kits, recipe content, ingredient photography, seasonal promotions. I understand how food brands talk to consumers, what makes food content perform on social, and how to produce it at the pace an in-house team requires.</p>
+            <p class="sr sr-d3">The Kitchen needs someone who can <strong>concept and execute independently, from brief to delivery</strong>. That's exactly how I've worked my entire career. In-house teams at HelloFresh, IKEA, Rituals, GLS. I embed in the brand, understand the business, and create work that's culturally relevant and commercially effective.</p>
+        </div>
+        <div class="serving-right sr sr-d2">
+            <div class="s-item">
+                <h4>Food industry native</h4>
+                <p>HelloFresh: meal kits, recipe content, food photography, seasonal campaigns. I know how food brands communicate and what makes food content connect.</p>
+            </div>
+            <div class="s-item">
+                <h4>Culture-first creative</h4>
+                <p>I identify cultural moments and trends that shape brand narratives. Content that cuts through on TikTok and social, not just fills a calendar.</p>
+            </div>
+            <div class="s-item">
+                <h4>In-house speed</h4>
+                <p>Four in-house teams. I work fast, independently, and without external agency dependency. Brief to delivery, concept to execution.</p>
+            </div>
+            <div class="s-item">
+                <h4>Already in Amsterdam</h4>
+                <p>Based in Amsterdam, no relocation needed. English fluent, Dutch conversational. EU passport holder. Ready to start.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="cta" id="connect">
+    <h2 class="sr">Let's<br><em>cook</em></h2>
+    <p class="info sr sr-d1">jan.lonnqvist@windowslive.com · +31 619 584 748<br>Amsterdam</p>
+    <div class="cta-links sr sr-d2">
+        <a href="mailto:jan.lonnqvist@windowslive.com" class="primary">Email me</a>
+        <a href="tel:+31619584748" class="secondary">Call</a>
+    </div>
+</section>
+
+<footer>
+    <span>&copy; Jan Lönnqvist 2026</span>
+    <span>Amsterdam</span>
+</footer>
+
+<script>
+setTimeout(() => {
+    document.getElementById('loader').classList.add('done');
+    document.getElementById('hL').classList.add('vis');
+    document.getElementById('hT').classList.add('vis');
+    document.getElementById('hS').classList.add('vis');
+}, 1700);
+
+const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('vis'); obs.unobserve(e.target); }});
+}, { threshold: .1 });
+document.querySelectorAll('.sr').forEach(el => obs.observe(el));
+
+const cd = document.getElementById('cd'), cr = document.getElementById('cr');
+let cx = -100, cy = -100, rx = -100, ry = -100;
+const M = /Mobi|Android/i.test(navigator.userAgent) || window.innerWidth < 900;
+if (!M) {
+    document.addEventListener('mousemove', e => { cx = e.clientX; cy = e.clientY; });
+    document.querySelectorAll('a, .ing-item, .s-item').forEach(el => {
+        el.addEventListener('mouseenter', () => cr.classList.add('h'));
+        el.addEventListener('mouseleave', () => cr.classList.remove('h'));
+    });
+    (function raf() {
+        requestAnimationFrame(raf);
+        cd.style.left = cx + 'px'; cd.style.top = cy + 'px';
+        rx += (cx - rx) * .08; ry += (cy - ry) * .08;
+        cr.style.left = rx + 'px'; cr.style.top = ry + 'px';
+    })();
+}
+
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('keydown', e => {
+    if (e.key === 'F12') e.preventDefault();
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && ['I','i','J','j','C','c'].includes(e.key)) e.preventDefault();
+    if ((e.ctrlKey || e.metaKey) && ['u','U','s','S'].includes(e.key)) e.preventDefault();
+});
+document.addEventListener('dragstart', e => e.preventDefault());
+document.addEventListener('selectstart', e => { if (e.target.closest && (e.target.closest('a') || e.target.closest('input'))) return; e.preventDefault(); });
+</script>
+</body>
+</html>
